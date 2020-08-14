@@ -23,8 +23,10 @@
     <arg name="depth_camera_info_topic" value="/camera/depth/camera_info"/>
     <arg name="rtabmapviz" value="false"/>
     <arg name="rviz" value="true"/>
+    <arg name="rviz_cfg" value="$(find rgbdp_video)/launch/config/rgbdp_video.rviz" />
   </include>
 
+<!--
   <include file="$(find robot_localization)/launch/ukf_template.launch"/>
   <param name="/ukf_se/frequency" value="300"/>
   <param name="/ukf_se/base_link_frame" value="camera_link"/>
@@ -49,5 +51,6 @@
   <param name="/ukf_se/imu0_differential" value="true"/>
   <param name="/ukf_se/imu0_relative" value="false"/>
   <param name="/ukf_se/use_control" value="false"/>
+-->
   <!-- <param name="/ukf_se/odom0_config" value="{true,true,true,}"/> -->
 </launch>
