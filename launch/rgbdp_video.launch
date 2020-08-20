@@ -15,6 +15,10 @@
     <remap from="/imu/data_raw" to="/camera/imu"/>
   </node>
 
+<!--
+  <node pkg="rgbdp_video" name="depth_converter" type="depth_converter.py" />
+-->
+
   <include file="$(find rtabmap_ros)/launch/rtabmap.launch">
     <arg name="args" value="--delete_db_on_start"/>
     <arg name="rgb_topic" value="/camera/color/image_raw"/>
