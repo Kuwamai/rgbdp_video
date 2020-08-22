@@ -61,7 +61,7 @@ class depth_converter:
         resize_scale = 1
 
         # color_image
-        color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB) 
+        #color_image = cv2.cvtColor(color_image, cv2.COLOR_BGR2RGB) 
         h, w, c = color_image.shape
  
         # depth_image
