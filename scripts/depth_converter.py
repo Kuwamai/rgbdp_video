@@ -35,10 +35,13 @@ class depth_converter:
 
         # 映像取得時のカメラ位置計算
         try:
+            pos_lim = 10
+            z_offset = 0
+
             trans = self.tfBuffer.lookup_transform("map", "camera_color_frame", rospy.Time(0))
-            pos_x_image = np.full((40, 40, 3), [trans.transform.translation.x * 360, 1, 1])
-            pos_y_image = np.full((40, 40, 3), [trans.transform.translation.y * 360, 1, 1])
-            pos_z_image = np.full((40, 40, 3), [trans.transform.translation.z * 360, 1, 1])
+            pos_x_image = np.full((40, 40, 3), [(trans.transform.translation.x / pos_lim + 0.5) * 360, 1, 1])
+            pos_y_image = np.full((40, 40, 3), [(trans.transform.translation.y / pos_lim + 0.5) * 360, 1, 1])
+            pos_z_image = np.full((40, 40, 3), [((trans.transform.translation.z + z_offset) / pos_lim + 0.5) * 360, 1, 1])
             matrix = quaternion_matrix([trans.transform.rotation.w,
                                         trans.transform.rotation.x,
                                         trans.transform.rotation.y,
@@ -47,7 +50,7 @@ class depth_converter:
 
             for i in range(3):
                 for j in range(3):
-                    pose_list.append(np.full((40, 40, 3), [matrix[i][j] * 360, 1, 1]))
+                    pose_list.append(np.full((40, 40, 3), [(matrix[i][j] / 2 + 0.5) * 360, 1, 1]))
 
             pose_hsv = np.vstack(pose_list)
             pose_hsv = pose_hsv.astype(np.float32)
