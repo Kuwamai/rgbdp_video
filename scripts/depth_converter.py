@@ -68,14 +68,14 @@ class depth_converter:
         depth_array = np.array(depth_image)
         max_distance = 3000
         min_distance = 100
-        #nan_area = np.isnan(depth_array)
-        #depth_array[nan_area] = max_distance
         depth_array = depth_array.astype(np.float32)
+        v_array = s_array = np.ones_like(depth_array)
+        v_array[depth_array == 0] = 0
         cv2.imshow("Origin Image", depth_image)
         ret, depth_array = cv2.threshold(depth_array, max_distance, max_distance, cv2.THRESH_TRUNC)
         ret, depth_array = cv2.threshold(depth_array, min_distance, max_distance, cv2.THRESH_TOZERO)
         depth_array = depth_array / (max_distance - min_distance) * 360
-        depth_hsv = np.dstack([depth_array, np.ones_like(depth_array), np.ones_like(depth_array)])
+        depth_hsv = np.dstack([depth_array, s_array, v_array])
         depth_rgb = cv2.cvtColor(depth_hsv, cv2.COLOR_HSV2RGB)
         depth_rgb = cv2.resize(depth_rgb, (int(w), int(h)))
         depth_rgb = np.uint8(np.round(depth_rgb * 255))
