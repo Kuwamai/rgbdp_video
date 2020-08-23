@@ -18,6 +18,8 @@ class depth_converter:
 
         self.pos_lim = rospy.get_param("/depth_converter/pos_lim")
         self.z_offset = rospy.get_param("/depth_converter/z_offset")
+        self.max_distance = rospy.get_param("/depth_converter/max_distance")
+        self.min_distance = rospy.get_param("/depth_converter/min_distance")
 
         self.bridge = CvBridge()
         sub_rgb = message_filters.Subscriber("camera/color/image_raw",Image)
@@ -76,9 +78,9 @@ class depth_converter:
         v_array = s_array = np.ones_like(depth_array)
         v_array[depth_array == 0] = 0
         cv2.imshow("Origin Image", depth_image)
-        ret, depth_array = cv2.threshold(depth_array, max_distance, max_distance, cv2.THRESH_TRUNC)
-        ret, depth_array = cv2.threshold(depth_array, min_distance, max_distance, cv2.THRESH_TOZERO)
-        depth_array = depth_array / (max_distance - min_distance) * 360
+        ret, depth_array = cv2.threshold(depth_array, self.max_distance, self.max_distance, cv2.THRESH_TRUNC)
+        ret, depth_array = cv2.threshold(depth_array, self.min_distance, self.max_distance, cv2.THRESH_TOZERO)
+        depth_array = depth_array / (self.max_distance - self.min_distance) * 360
         depth_hsv = np.dstack([depth_array, s_array, v_array])
         depth_rgb = cv2.cvtColor(depth_hsv, cv2.COLOR_HSV2RGB)
         depth_rgb = cv2.resize(depth_rgb, (int(w), int(h)))
