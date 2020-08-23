@@ -15,6 +15,10 @@ from tf.transformations import quaternion_matrix
 class depth_converter:
     def __init__(self):
         rospy.init_node('depth_converter', anonymous=True)
+
+        self.pos_lim = rospy.get_param("/depth_converter/pos_lim")
+        self.z_offset = rospy.get_param("/depth_converter/z_offset")
+
         self.bridge = CvBridge()
         sub_rgb = message_filters.Subscriber("camera/color/image_raw",Image)
         sub_depth = message_filters.Subscriber("camera/aligned_depth_to_color/image_raw",Image)
@@ -35,13 +39,10 @@ class depth_converter:
 
         # 映像取得時のカメラ位置計算
         try:
-            pos_lim = 10
-            z_offset = 0
-
             trans = self.tfBuffer.lookup_transform("map", "camera_color_frame", rospy.Time(0))
-            pos_x_image = np.full((40, 40, 3), [(trans.transform.translation.x / pos_lim + 0.5) * 360, 1, 1])
-            pos_y_image = np.full((40, 40, 3), [(trans.transform.translation.y / pos_lim + 0.5) * 360, 1, 1])
-            pos_z_image = np.full((40, 40, 3), [((trans.transform.translation.z + z_offset) / pos_lim + 0.5) * 360, 1, 1])
+            pos_x_image = np.full((40, 40, 3), [(trans.transform.translation.x / self.pos_lim + 0.5) * 360, 1, 1])
+            pos_y_image = np.full((40, 40, 3), [(trans.transform.translation.y / self.pos_lim + 0.5) * 360, 1, 1])
+            pos_z_image = np.full((40, 40, 3), [((trans.transform.translation.z + self.z_offset) / self.pos_lim + 0.5) * 360, 1, 1])
             matrix = quaternion_matrix([trans.transform.rotation.w,
                                         trans.transform.rotation.x,
                                         trans.transform.rotation.y,
