@@ -85,8 +85,10 @@ class depth_converter:
         depth_rgb = cv2.cvtColor(depth_hsv, cv2.COLOR_HSV2RGB)
         depth_rgb = cv2.resize(depth_rgb, (int(w), int(h)))
         depth_rgb = np.uint8(np.round(depth_rgb * 255))
-
-        msg = self.bridge.cv2_to_imgmsg(cv2.hconcat([pose_rgb, color_image, depth_rgb]), encoding = "rgb8")
+        side_by_side = cv2.hconcat([pose_rgb, color_image, depth_rgb])
+        cv2.imshow('image', cv2.cvtColor(side_by_side, cv2.COLOR_BGR2RGB))
+        cv2.waitKey(1)
+        msg = self.bridge.cv2_to_imgmsg(side_by_side, encoding = "rgb8")
         self.pub_image.publish(msg)
  
 if __name__ == '__main__':
