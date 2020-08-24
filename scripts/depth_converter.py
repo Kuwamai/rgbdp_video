@@ -42,9 +42,9 @@ class depth_converter:
         # 映像取得時のカメラ位置計算
         try:
             trans = self.tfBuffer.lookup_transform("map", "camera_color_frame", rospy.Time(0))
-            pos_x_image = np.full((40, 40, 3), [(trans.transform.translation.x / self.pos_lim + 0.5) * 360, 1, 1])
-            pos_y_image = np.full((40, 40, 3), [(trans.transform.translation.y / self.pos_lim + 0.5) * 360, 1, 1])
-            pos_z_image = np.full((40, 40, 3), [((trans.transform.translation.z + self.z_offset) / self.pos_lim + 0.5) * 360, 1, 1])
+            pos_x_image = np.full((40, 40), (trans.transform.translation.x / self.pos_lim + 0.5) * 360)
+            pos_y_image = np.full((40, 40), (trans.transform.translation.y / self.pos_lim + 0.5) * 360)
+            pos_z_image = np.full((40, 40), ((trans.transform.translation.z + self.z_offset) / self.pos_lim + 0.5) * 360)
             matrix = quaternion_matrix([trans.transform.rotation.w,
                                         trans.transform.rotation.x,
                                         trans.transform.rotation.y,
@@ -53,9 +53,12 @@ class depth_converter:
 
             for i in range(3):
                 for j in range(3):
-                    pose_list.append(np.full((40, 40, 3), [(matrix[i][j] / 2 + 0.5) * 360, 1, 1]))
+                    pose_list.append(np.full((40, 40), (matrix[i][j] / 2 + 0.5) * 360))
 
             pose_hsv = np.vstack(pose_list)
+            pose_hsv = np.clip(pose_hsv, 10, 350)
+            v_array = s_array = np.ones_like(pose_hsv)
+            pose_hsv = np.dstack([pose_hsv, s_array, v_array])
             pose_hsv = pose_hsv.astype(np.float32)
             pose_rgb = cv2.cvtColor(pose_hsv, cv2.COLOR_HSV2RGB)
             pose_rgb = np.uint8(np.round(pose_rgb * 255))
@@ -81,6 +84,7 @@ class depth_converter:
         ret, depth_array = cv2.threshold(depth_array, self.max_distance, self.max_distance, cv2.THRESH_TRUNC)
         ret, depth_array = cv2.threshold(depth_array, self.min_distance, self.max_distance, cv2.THRESH_TOZERO)
         depth_array = depth_array / (self.max_distance - self.min_distance) * 360
+        depth_array = np.clip(depth_array, 10, 350)
         depth_hsv = np.dstack([depth_array, s_array, v_array])
         depth_rgb = cv2.cvtColor(depth_hsv, cv2.COLOR_HSV2RGB)
         depth_rgb = cv2.resize(depth_rgb, (int(w), int(h)))
