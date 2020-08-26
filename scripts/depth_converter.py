@@ -15,6 +15,12 @@ from tf.transformations import quaternion_matrix
 class depth_converter:
     def __init__(self):
         rospy.init_node('depth_converter', anonymous=True)
+
+        self.pos_lim = rospy.get_param("/depth_converter/pos_lim")
+        self.z_offset = rospy.get_param("/depth_converter/z_offset")
+        self.max_distance = rospy.get_param("/depth_converter/max_distance")
+        self.min_distance = rospy.get_param("/depth_converter/min_distance")
+
         self.bridge = CvBridge()
         sub_rgb = message_filters.Subscriber("camera/color/image_raw",Image)
         sub_depth = message_filters.Subscriber("camera/aligned_depth_to_color/image_raw",Image)
@@ -36,20 +42,23 @@ class depth_converter:
         # 映像取得時のカメラ位置計算
         try:
             trans = self.tfBuffer.lookup_transform("map", "camera_color_frame", rospy.Time(0))
-            pos_x_image = np.full((40, 40, 3), [trans.transform.translation.x * 360, 1, 1])
-            pos_y_image = np.full((40, 40, 3), [trans.transform.translation.y * 360, 1, 1])
-            pos_z_image = np.full((40, 40, 3), [trans.transform.translation.z * 360, 1, 1])
-            matrix = quaternion_matrix([trans.transform.rotation.w,
-                                        trans.transform.rotation.x,
-                                        trans.transform.rotation.y,
-                                        trans.transform.rotation.z])
+            pos_x_image = np.full((40, 40), (-trans.transform.translation.y / self.pos_lim + 0.5) * 360)
+            pos_y_image = np.full((40, 40), ((trans.transform.translation.z + self.z_offset) / self.pos_lim + 0.5) * 360)
+            pos_z_image = np.full((40, 40), (trans.transform.translation.x / self.pos_lim + 0.5) * 360)
+            matrix = quaternion_matrix([-trans.transform.rotation.w,
+                                        -trans.transform.rotation.y,
+                                        trans.transform.rotation.z,
+                                        trans.transform.rotation.x])
             pose_list = [pos_x_image, pos_y_image, pos_z_image]
 
             for i in range(3):
                 for j in range(3):
-                    pose_list.append(np.full((40, 40, 3), [matrix[i][j] * 360, 1, 1]))
+                    pose_list.append(np.full((40, 40), (matrix[2-i][2-j] / 2 + 0.5) * 360))
 
             pose_hsv = np.vstack(pose_list)
+            pose_hsv = np.clip(pose_hsv, 20, 340)
+            v_array = s_array = np.ones_like(pose_hsv)
+            pose_hsv = np.dstack([pose_hsv, s_array, v_array])
             pose_hsv = pose_hsv.astype(np.float32)
             pose_rgb = cv2.cvtColor(pose_hsv, cv2.COLOR_HSV2RGB)
             pose_rgb = np.uint8(np.round(pose_rgb * 255))
@@ -72,15 +81,18 @@ class depth_converter:
         v_array = s_array = np.ones_like(depth_array)
         v_array[depth_array == 0] = 0
         cv2.imshow("Origin Image", depth_image)
-        ret, depth_array = cv2.threshold(depth_array, max_distance, max_distance, cv2.THRESH_TRUNC)
-        ret, depth_array = cv2.threshold(depth_array, min_distance, max_distance, cv2.THRESH_TOZERO)
-        depth_array = depth_array / (max_distance - min_distance) * 360
+        ret, depth_array = cv2.threshold(depth_array, self.max_distance, self.max_distance, cv2.THRESH_TRUNC)
+        ret, depth_array = cv2.threshold(depth_array, self.min_distance, self.max_distance, cv2.THRESH_TOZERO)
+        depth_array = depth_array / (self.max_distance - self.min_distance) * 360
+        depth_array = np.clip(depth_array, 20, 340)
         depth_hsv = np.dstack([depth_array, s_array, v_array])
         depth_rgb = cv2.cvtColor(depth_hsv, cv2.COLOR_HSV2RGB)
         depth_rgb = cv2.resize(depth_rgb, (int(w), int(h)))
         depth_rgb = np.uint8(np.round(depth_rgb * 255))
-
-        msg = self.bridge.cv2_to_imgmsg(cv2.hconcat([pose_rgb, color_image, depth_rgb]), encoding = "rgb8")
+        side_by_side = cv2.hconcat([pose_rgb, color_image, depth_rgb])
+        cv2.imshow('image', cv2.cvtColor(side_by_side, cv2.COLOR_BGR2RGB))
+        cv2.waitKey(1)
+        msg = self.bridge.cv2_to_imgmsg(side_by_side, encoding = "rgb8")
         self.pub_image.publish(msg)
  
 if __name__ == '__main__':

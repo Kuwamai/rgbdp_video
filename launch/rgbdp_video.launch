@@ -1,6 +1,11 @@
 <launch>
 <!-- from realsense_ros -->
   <arg name="offline" default="false"/>
+  <arg name="pos_lim" default="10"/>
+  <arg name="z_offset" default="0"/>
+  <arg name="max_distance" default="3000"/>
+  <arg name="min_distance" default="100"/>
+
   <include unless="$(arg offline)" 
     file="$(find realsense2_camera)/launch/rs_camera.launch">
     <arg name="align_depth" value="true"/>
@@ -8,16 +13,19 @@
     <arg name="unite_imu_method" value="linear_interpolation"/>
   </include>
   
+  <node pkg="rgbdp_video" name="depth_converter" type="depth_converter.py" output="screen">
+    <param name="pos_lim" value="$(arg pos_lim)"/> 
+    <param name="z_offset" value="$(arg z_offset)"/> 
+    <param name="max_distance" value="$(arg max_distance)"/> 
+    <param name="min_distance" value="$(arg min_distance)"/> 
+  </node>
+
   <node pkg="imu_filter_madgwick" type="imu_filter_node" name="ImuFilter">
     <param name="use_mag" type="bool" value="false" />
     <param name="_publish_tf" type="bool" value="false" />
     <param name="_world_frame" type="string" value="enu" />
     <remap from="/imu/data_raw" to="/camera/imu"/>
   </node>
-
-<!--
-  <node pkg="rgbdp_video" name="depth_converter" type="depth_converter.py" />
--->
 
   <include file="$(find rtabmap_ros)/launch/rtabmap.launch">
     <arg name="args" value="--delete_db_on_start"/>
