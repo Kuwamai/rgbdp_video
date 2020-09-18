@@ -20,6 +20,7 @@ class depth_converter:
         self.z_offset = rospy.get_param("/depth_converter/z_offset")
         self.max_distance = rospy.get_param("/depth_converter/max_distance")
         self.min_distance = rospy.get_param("/depth_converter/min_distance")
+        self.base_frame = rospy.get_param("/depth_converter/base_frame")
 
         self.bridge = CvBridge()
         sub_rgb = message_filters.Subscriber("camera/color/image_raw",Image)
@@ -41,7 +42,7 @@ class depth_converter:
 
         # 映像取得時のカメラ位置計算
         try:
-            trans = self.tfBuffer.lookup_transform("map", "camera_color_frame", rospy.Time(0))
+            trans = self.tfBuffer.lookup_transform(self.base_frame, "camera_color_frame", rospy.Time(0))
             pos_x_image = np.full((40, 40), (-trans.transform.translation.y / self.pos_lim + 0.5) * 360)
             pos_y_image = np.full((40, 40), ((trans.transform.translation.z + self.z_offset) / self.pos_lim + 0.5) * 360)
             pos_z_image = np.full((40, 40), (trans.transform.translation.x / self.pos_lim + 0.5) * 360)
