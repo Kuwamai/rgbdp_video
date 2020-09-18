@@ -23,8 +23,8 @@ class depth_converter:
         self.base_frame = rospy.get_param("/depth_converter/base_frame")
 
         self.bridge = CvBridge()
-        sub_rgb = message_filters.Subscriber("camera/color/image_raw",Image)
-        sub_depth = message_filters.Subscriber("camera/aligned_depth_to_color/image_raw",Image)
+        sub_rgb = message_filters.Subscriber("d400/color/image_raw",Image)
+        sub_depth = message_filters.Subscriber("d400/aligned_depth_to_color/image_raw",Image)
         self.mf = message_filters.ApproximateTimeSynchronizer([sub_rgb, sub_depth], 100, 10.0)
         self.mf.registerCallback(self.ImageCallback)
 
@@ -42,7 +42,7 @@ class depth_converter:
 
         # 映像取得時のカメラ位置計算
         try:
-            trans = self.tfBuffer.lookup_transform(self.base_frame, "camera_color_frame", rospy.Time(0))
+            trans = self.tfBuffer.lookup_transform(self.base_frame, "d400_color_frame", rospy.Time(0))
             pos_x_image = np.full((40, 40), (-trans.transform.translation.y / self.pos_lim + 0.5) * 360)
             pos_y_image = np.full((40, 40), ((trans.transform.translation.z + self.z_offset) / self.pos_lim + 0.5) * 360)
             pos_z_image = np.full((40, 40), (trans.transform.translation.x / self.pos_lim + 0.5) * 360)
