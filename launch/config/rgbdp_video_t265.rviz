@@ -8,6 +8,7 @@ Panels:
         - /Status1
         - /TF1/Frames1
         - /TF1/Tree1
+        - /PointCloud21
       Splitter Ratio: 0.5
     Tree Height: 335
   - Class: rviz/Selection
@@ -229,7 +230,7 @@ Visualization Manager:
       Queue Size: 10
       Selectable: true
       Size (Pixels): 3
-      Size (m): 0.009999999776482582
+      Size (m): 0.004000000189989805
       Style: Flat Squares
       Topic: /d400/depth/color/points
       Unreliable: false
@@ -264,7 +265,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz/Orbit
-      Distance: 0.7257040143013
+      Distance: 0.5861353874206543
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -279,10 +280,10 @@ Visualization Manager:
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0903977155685425
+      Pitch: 0.16979622840881348
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 6.063595771789551
+      Yaw: 3.2885806560516357
     Saved: ~
 Window Geometry:
   Displays:

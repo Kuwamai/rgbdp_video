@@ -46,10 +46,11 @@ class depth_converter:
             pos_x_image = np.full((40, 40), (-trans.transform.translation.y / self.pos_lim + 0.5) * 360)
             pos_y_image = np.full((40, 40), ((trans.transform.translation.z + self.z_offset) / self.pos_lim + 0.5) * 360)
             pos_z_image = np.full((40, 40), (trans.transform.translation.x / self.pos_lim + 0.5) * 360)
-            matrix = quaternion_matrix([-trans.transform.rotation.w,
-                                        -trans.transform.rotation.y,
+            matrix = quaternion_matrix([-trans.transform.rotation.y,
                                         trans.transform.rotation.z,
-                                        trans.transform.rotation.x])
+                                        trans.transform.rotation.x,
+                                        -trans.transform.rotation.w])
+
             pose_list = [pos_x_image, pos_y_image, pos_z_image]
 
             for i in range(3):
