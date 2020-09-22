@@ -62,7 +62,7 @@ class depth_converter:
 
                 for i in range(3):
                     for j in range(3):
-                        pose_list.append(np.full((40, 40), (matrix[2-i][2-j] / 2 + 0.5) * 360))
+                        pose_list.append(np.full((40, 40), (matrix[j][i] / 2 + 0.5) * 360))
 
                 pose_hsv = np.vstack(pose_list)
                 pose_hsv = np.clip(pose_hsv, 20, 340)
