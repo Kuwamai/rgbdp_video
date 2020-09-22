@@ -42,7 +42,7 @@ RGBD映像にカメラ位置を埋め込むパッケージです
         ```
 
 ## H.264からVP8に変換
-Ubuntu版UnityのVideo playerはH.264に対応していません。ローカルテスト用に下記コマンドで動画をVP8に変換します。
+* Ubuntu版UnityのVideo playerはH.264に対応していません。ローカルテスト用に下記コマンドで動画をVP8に変換します。  
 
     ```
     $ ffmpeg -i RgbdpVideo.mp4 -r 30 -c:v libvpx RgbdpVideo.webm
