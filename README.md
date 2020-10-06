@@ -2,9 +2,11 @@
 ![rviz](./image/rviz.png)
 
 ## Description
-RGBD映像にカメラ位置を埋め込むパッケージです
+RGBD映像にカメラ位置を埋め込むパッケージです。こちらのShaderを用いて表示することを想定しています。
 
-Video: https://youtu.be/Q98aN5_9jlo
+* [RgbdppViewer](https://github.com/Kuwamai/shader_practice/tree/master/Assets/RgbdpViewer)
+
+動作映像: https://youtu.be/Q98aN5_9jlo
 
 ## Requirements
 下記環境で動作確認しています
