@@ -1,7 +1,10 @@
 # rgbdp_video
+![rviz](./image/rviz.png)
 
 ## Description
 RGBD映像にカメラ位置を埋め込むパッケージです
+
+Video: https://youtu.be/Q98aN5_9jlo
 
 ## Requirements
 下記環境で動作確認しています
@@ -40,6 +43,13 @@ RGBD映像にカメラ位置を埋め込むパッケージです
         ```
         $ roslaunch rgbdp_video rgbdp_video_t265.launch  serial_no1:=<serial number of d435> serial_no2:=<serial number of t265>
         ```
+
+## Camera mounter
+![front](./image/front.jpg)
+
+T265とD435iを固定するマウンタデータです。3Dプリンタで印刷してください。
+
+* [Camera mounter](./models/realsense_mounter.stl)
 
 ## H.264からVP8に変換
 * Ubuntu版UnityのVideo playerはH.264に対応していません。ローカルテスト用に下記コマンドで動画をVP8に変換します。  
